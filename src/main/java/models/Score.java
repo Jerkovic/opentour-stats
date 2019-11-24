@@ -9,5 +9,4 @@ public enum Score {
     EAGLE,
     ALBATROSS,
     HOLE_IN_ONE
-
 }

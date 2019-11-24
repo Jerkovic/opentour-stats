@@ -6,6 +6,7 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import models.Division;
 import service.stats.StatsService;
+import service.stats.models.HoleAverage;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -34,18 +35,18 @@ public class ReportService {
 
         document.open();
         Font font = FontFactory.getFont(FontFactory.COURIER, 16, BaseColor.BLACK);
-        Chunk chunk = new Chunk(title + "\n\n", font);
+        Chunk chunk = new Chunk(title + " - "+ division.getName() + "\n\n", font);
 
         Paragraph paragraph = new Paragraph(chunk);
         document.add(paragraph);
 
-        PdfPTable table = new PdfPTable(2);
+        PdfPTable table = new PdfPTable(3);
+
 
         //addCustomRows(table);
-        Map<Integer, Double> averages = StatsService.GetHoleAverage(division);
-        addTableHeader(table, Stream.of("Hole #", "Average")); // par
-        for (Map.Entry<Integer, Double> entry : averages.entrySet()) {
-            addRows(table,entry.getKey(), entry.getValue());
+        addTableHeader(table, Stream.of("Hole #", "Par", "Average")); // par
+        for (HoleAverage entry : StatsService.GetHoleAverage(division)) {
+            addRows(table, entry);
         }
 
         document.add(table);
@@ -56,9 +57,10 @@ public class ReportService {
      *
      * @param table
      */
-    private static void addRows(PdfPTable table, Integer hole, Double average) {
-        table.addCell(hole.toString());
-        table.addCell(formatter.format(average));
+    private static void addRows(PdfPTable table, HoleAverage hole) {
+        table.addCell(Integer.toString(hole.getHoleNumber()));
+        table.addCell(Integer.toString(hole.getPar()));
+        table.addCell(formatter.format(hole.getAverage()));
     }
 
     /**

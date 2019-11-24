@@ -13,7 +13,7 @@ public class OpentourClient {
      * @param String token
      */
     public OpentourClient (String token) {
-        this.authToken = "3339739869705530119:6882b51f3d07650c87923dbe7b31a28d";
+        this.authToken = token;
     }
 
     /**

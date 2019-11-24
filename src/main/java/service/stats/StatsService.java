@@ -1,10 +1,12 @@
 package service.stats;
 
-import models.Division;
-import models.HoleScore;
-import models.Score;
+import models.*;
+import service.stats.models.HoleAverage;
+import utils.MapUtils;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -39,7 +41,7 @@ public class StatsService {
                 filter(e -> e.getScoreTypeEnum().equals(Score.BIRDIE)).
                 collect(Collectors.groupingBy(HoleScore::getPlayerName, Collectors.counting()));
 
-        System.out.println(mostbirds);
+        System.out.println(MapUtils.sortByValue(mostbirds));
 
         Map<String, Map<Score, Long>> playerScoresRaw = division.getScores().stream()
                 .collect(
@@ -63,13 +65,24 @@ public class StatsService {
      * @param division
      * @return
      */
-    public static Map<Integer, Double> GetHoleAverage(Division division) {
+    public static List<HoleAverage> GetHoleAverage(Division division) {
 
-        return division.getScores().stream().collect(
-                    Collectors.groupingBy(
-                            HoleScore::getHole,
-                            Collectors.averagingInt(HoleScore::getScore)));
+        Round round  = division.getLeaderboard().getRounds().get(0);
 
+        Map<Integer, Double> temp = division.getScores().stream().collect(
+                Collectors.groupingBy(
+                        HoleScore::getHole,
+                        Collectors.averagingInt(HoleScore::getScore)));
+
+
+        List<HoleAverage> data = new ArrayList<>();
+
+        for (int i = 1; i <= round.getCourse().getNumHoles(); i++) {
+            Hole hole = round.getCourse().getHole(i);
+            data.add(new HoleAverage(hole, temp.get(i)));
+        }
+
+        return data;
 
     }
 
