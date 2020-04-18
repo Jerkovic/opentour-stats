@@ -41,7 +41,7 @@ public class RoundResult {
     }
 
     public boolean isRoundComplete() {
-        return getScorecard().getReportedScoresNumber() == 18; // hmm
+        return getScorecard().getReportedScoresNumber() == 18; // hmm? can be other than 18
     }
 
     public int getCompleteRoundScore() {

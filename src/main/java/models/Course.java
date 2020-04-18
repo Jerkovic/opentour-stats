@@ -37,6 +37,10 @@ public class Course {
         return holes;
     }
 
+    public int getTotalPar() {
+        return getHoles().stream().mapToInt(Hole::getPar).sum();
+    }
+
     public Hole getHole(int nr) {
         return holes.get(nr - 1);
     }

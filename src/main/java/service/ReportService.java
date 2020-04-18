@@ -6,13 +6,13 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import models.Division;
 import service.stats.StatsService;
-import service.stats.models.HoleAverage;
+import service.stats.models.CourseStats;
+import service.stats.models.HoleStats;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.Map;
 import java.util.stream.Stream;
 
 public class ReportService {
@@ -29,12 +29,11 @@ public class ReportService {
     public static void createPDF(String title, Division division) throws FileNotFoundException, DocumentException {
         Document document = new Document();
 
-        // normalize filename here
-
+        // normalize filename from title
         PdfWriter.getInstance(document, new FileOutputStream("report1.pdf"));
 
         document.open();
-        Font font = FontFactory.getFont(FontFactory.COURIER, 16, BaseColor.BLACK);
+        Font font = FontFactory.getFont(FontFactory.COURIER, 12, BaseColor.BLACK);
         Chunk chunk = new Chunk(title + " - "+ division.getName() + "\n\n", font);
 
         Paragraph paragraph = new Paragraph(chunk);
@@ -42,12 +41,17 @@ public class ReportService {
 
         PdfPTable table = new PdfPTable(3);
 
-
+        CourseStats courseStats = StatsService.GetHoleAverage(division);
         //addCustomRows(table);
         addTableHeader(table, Stream.of("Hole #", "Par", "Average")); // par
-        for (HoleAverage entry : StatsService.GetHoleAverage(division)) {
+        for (HoleStats entry : courseStats.getHoleStats()) {
             addRows(table, entry);
         }
+
+        // footer sum
+        table.addCell("");
+        table.addCell(courseStats.getCourse().getTotalPar() + "");
+        table.addCell("average tot");
 
         document.add(table);
         document.close();
@@ -57,7 +61,7 @@ public class ReportService {
      *
      * @param table
      */
-    private static void addRows(PdfPTable table, HoleAverage hole) {
+    private static void addRows(PdfPTable table, HoleStats hole) {
         table.addCell(Integer.toString(hole.getHoleNumber()));
         table.addCell(Integer.toString(hole.getPar()));
         table.addCell(formatter.format(hole.getAverage()));

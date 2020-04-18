@@ -1,7 +1,8 @@
 package service.stats;
 
 import models.*;
-import service.stats.models.HoleAverage;
+import service.stats.models.CourseStats;
+import service.stats.models.HoleStats;
 import utils.MapUtils;
 
 import java.util.ArrayList;
@@ -65,25 +66,28 @@ public class StatsService {
      * @param division
      * @return
      */
-    public static List<HoleAverage> GetHoleAverage(Division division) {
+    public static CourseStats GetHoleAverage(Division division) {
 
+        // also by round? maybe
         Round round  = division.getLeaderboard().getRounds().get(0);
+
+        CourseStats course = new CourseStats();
+        course.setCourse(round.getCourse());
 
         Map<Integer, Double> temp = division.getScores().stream().collect(
                 Collectors.groupingBy(
                         HoleScore::getHole,
                         Collectors.averagingInt(HoleScore::getScore)));
 
-
-        List<HoleAverage> data = new ArrayList<>();
+        List<HoleStats> data = new ArrayList<>();
 
         for (int i = 1; i <= round.getCourse().getNumHoles(); i++) {
             Hole hole = round.getCourse().getHole(i);
-            data.add(new HoleAverage(hole, temp.get(i)));
+            data.add(new HoleStats(hole, temp.get(i)));
         }
 
-        return data;
-
+        course.setHoleStats(data);
+        return course;
     }
 
 
