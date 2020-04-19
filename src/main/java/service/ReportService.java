@@ -33,17 +33,16 @@ public class ReportService {
         PdfWriter.getInstance(document, new FileOutputStream("report1.pdf"));
 
         document.open();
-        Font font = FontFactory.getFont(FontFactory.COURIER, 12, BaseColor.BLACK);
+        Font font = FontFactory.getFont(FontFactory.HELVETICA_BOLDOBLIQUE, 12, BaseColor.BLACK);
         Chunk chunk = new Chunk(title + " - "+ division.getName() + "\n\n", font);
 
         Paragraph paragraph = new Paragraph(chunk);
         document.add(paragraph);
 
-        PdfPTable table = new PdfPTable(3);
+        PdfPTable table = new PdfPTable(6);
 
         CourseStats courseStats = StatsService.GetHoleAverage(division);
-        //addCustomRows(table);
-        addTableHeader(table, Stream.of("Hole #", "Par", "Average")); // par
+        addTableHeader(table, Stream.of("Hole #", "Par", "Average", "Pars", "Birdies", "Eagles")); // par
         for (HoleStats entry : courseStats.getHoleStats()) {
             addRows(table, entry);
         }
@@ -52,8 +51,15 @@ public class ReportService {
         table.addCell("");
         table.addCell(courseStats.getCourse().getTotalPar() + "");
         table.addCell("average tot");
+        table.addCell("");
+        table.addCell("");
+        table.addCell("");
 
         document.add(table);
+        document.newPage();
+
+        //CourseStats courseStats = StatsService.getCountedPlayerScores(division);
+
         document.close();
     }
 
@@ -65,6 +71,10 @@ public class ReportService {
         table.addCell(Integer.toString(hole.getHoleNumber()));
         table.addCell(Integer.toString(hole.getPar()));
         table.addCell(formatter.format(hole.getAverage()));
+        table.addCell(Long.toString(hole.getPars()));
+        table.addCell(Long.toString(hole.getBirdies()));
+        table.addCell(Long.toString(hole.getEagles()));
+
     }
 
     /**
@@ -76,6 +86,7 @@ public class ReportService {
                 .forEach(columnTitle -> {
                     PdfPCell header = new PdfPCell();
                     header.setBackgroundColor(BaseColor.LIGHT_GRAY);
+                    header.setHorizontalAlignment(1);
                     header.setBorderWidth(1);
                     header.setPhrase(new Phrase(columnTitle));
                     table.addCell(header);

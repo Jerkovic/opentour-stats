@@ -16,7 +16,16 @@ import static java.util.stream.Collectors.toMap;
 
 public class StatsService {
 
-    public static void GetTest(Division division) {
+    public static Map<String, Long> getDivisionPlayerScoreWinners(Division division, Score score) {
+        // most birdies
+        Map<String, Long> result  = division.getScores().stream().
+                filter(e -> e.getScoreTypeEnum().equals(Score.HOLE_IN_ONE)).
+                collect(Collectors.groupingBy(HoleScore::getPlayerName, Collectors.counting()));
+
+        return MapUtils.sortByValue(result);
+    }
+
+    public static void getHoleWinners(Division division) {
         Map<Integer, Map<String, Double>> playerHoleAverages = division.getScores().stream()
                 .collect(
                         Collectors.groupingBy(
@@ -36,15 +45,11 @@ public class StatsService {
             System.out.println("Hole winner: " + hole + " " + temp);
 
         }
+    }
 
-        // most birdies
-        Map<String, Long> mostbirds  = division.getScores().stream().
-                filter(e -> e.getScoreTypeEnum().equals(Score.BIRDIE)).
-                collect(Collectors.groupingBy(HoleScore::getPlayerName, Collectors.counting()));
-
-        System.out.println(MapUtils.sortByValue(mostbirds));
-
-        Map<String, Map<Score, Long>> playerScoresRaw = division.getScores().stream()
+    public static Map<String, Map<Score, Long>> getCountedPlayerScores(Division division)
+    {
+        return division.getScores().stream()
                 .collect(
                         Collectors.groupingBy(
                                 HoleScore::getPlayerName,
@@ -54,15 +59,11 @@ public class StatsService {
                                 )
                         )
                 );
-
-        System.out.println(playerScoresRaw);
-
-        // and from raw we can display Most Birdies, HalfDan Roth 30
-
     }
 
-    /**
-     *
+
+
+    /***
      * @param division
      * @return
      */
@@ -79,16 +80,34 @@ public class StatsService {
                         HoleScore::getHole,
                         Collectors.averagingInt(HoleScore::getScore)));
 
+
+        // count score types / hole test
+        Map<Integer, Map<Score, Long>> res = division.getScores().stream()
+                .collect(
+                        Collectors.groupingBy(
+                                HoleScore::getHole,
+                                Collectors.groupingBy(
+                                        HoleScore::getScoreTypeEnum,
+                                        Collectors.counting()
+                                )
+                        )
+                );
+
         List<HoleStats> data = new ArrayList<>();
 
         for (int i = 1; i <= round.getCourse().getNumHoles(); i++) {
             Hole hole = round.getCourse().getHole(i);
-            data.add(new HoleStats(hole, temp.get(i)));
+            data.add(
+                    new HoleStats(
+                            hole,
+                            temp.get(i),
+                            res.get(i).getOrDefault(Score.BIRDIE, 0L),
+                            res.get(i).getOrDefault(Score.PAR, 0L),
+                            res.get(i).getOrDefault(Score.EAGLE, 0L))
+            );
         }
 
         course.setHoleStats(data);
         return course;
     }
-
-
 }

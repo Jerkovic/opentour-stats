@@ -6,13 +6,30 @@ public class HoleStats {
 
     private Hole hole;
     private double average;
-    // private int birdies
-    // private int eagles
+    private long birdies;
+    private long pars;
+    private long eagles;
     // ... etc
 
-    public HoleStats(Hole hole, double average) {
+    public HoleStats(Hole hole, double average, long birdies, long pars, long eagles) {
         this.hole = hole;
         this.average = average;
+        this.birdies = birdies;
+        this.eagles = eagles;
+        this.pars = pars;
+
+    }
+
+    public long getBirdies() {
+        return birdies;
+    }
+
+    public long getPars() {
+        return pars;
+    }
+
+    public long getEagles() {
+        return eagles;
     }
 
     public double getAverage() {

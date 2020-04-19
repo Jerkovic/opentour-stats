@@ -1,19 +1,11 @@
 import com.google.gson.Gson;
 import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.PdfPCell;
-import com.itextpdf.text.pdf.PdfPTable;
-import com.itextpdf.text.pdf.PdfWriter;
 import models.*;
 import service.ReportService;
 import service.stats.StatsService;
 
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.util.*;
-import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.util.Map.Entry.comparingByValue;
 import static java.util.stream.Collectors.toMap;
@@ -36,7 +28,7 @@ public class Application {
 
         Arrays.asList(Score.values()).forEach(System.out::println);
 
-        StatsService.GetTest(herr);
+        StatsService.getHoleWinners(herr);
         ReportService.createPDF(tournament1.getName(), tournament1.getDivisions().stream().findFirst().get());
 
 
